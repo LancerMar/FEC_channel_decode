@@ -59,10 +59,10 @@ for i = 1:1:(len_rx_data/rows)
         [branch_matric_min,idx] = min([branch_matric_0,branch_matric_1]); 
         
         path_matric_temp(state,1) = branch_matric_min;
-        suvive_single_path(state,1) = idx;
-        if 0 == mod(state,2)
-            suvive_single_path(state,1) = idx + 2;
-        end
+%         suvive_single_path(state,1) = idx;
+%         if 0 == mod(state,2)
+%             suvive_single_path(state,1) = idx + 2;
+%         end
 
         if state < 2^(constrain_length-2)+1
             suvive_single_path(state,1) = idx + (state - 1)*2;
