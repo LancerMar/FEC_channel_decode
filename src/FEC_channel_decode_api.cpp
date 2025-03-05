@@ -9,7 +9,7 @@ FEC_CHANNEL_DECODE_EXPORT FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_API * CreateFEC
     }
 }
 
-void DeleteFECChannelDecodeObj(FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_API * &obj){
+FEC_CHANNEL_DECODE_EXPORT void DeleteFECChannelDecodeObj(FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_API * &obj){
     if( nullptr != obj ){
         delete obj;
         obj = nullptr;

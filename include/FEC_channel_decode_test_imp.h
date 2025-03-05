@@ -3,6 +3,7 @@
 
 namespace FEC_CHANNEL_DECODE{
     class FEC_CHANNEL_DECODE_TEST_IMP : public FEC_CHANNEL_DECODE_API{
+    public:
         FEC_CHANNEL_DECODE_TEST_IMP();
         virtual ~FEC_CHANNEL_DECODE_TEST_IMP();
 
