@@ -1,7 +1,5 @@
 #pragma once
 
-#define FEC_CHANNEL_DECODE_EXPORT
-#ifdef FEC_CHANNEL_DECODE_EXPORT
 #ifdef _WIN32
 #define FEC_CHANNEL_DECODE_EXPORT _declspec(dllexport)
 #else
@@ -9,7 +7,6 @@
 #define FEC_CHANNEL_DECODE_EXPORT __attribute__ ((visibility("default")))
 #endif //  __GUNC__
 #endif // _WIN32
-#endif // FEC_CHANNEL_DECODE_EXPORT
 
 #include "comm_type.h"
 
@@ -22,6 +19,22 @@ namespace FEC_CHANNEL_DECODE{
         virtual void init() = 0;
         virtual void encode() = 0;
         virtual void decode() = 0;
+
+        /**
+        * @brief set_polynomials                                set convolutional encode polynomials                        
+        * @param poly_ptr                                       [input] polynomial of convolution encode (Octal)
+        * @param poly_len                                       [input] length of polynomial
+        * @return Result                                        execute result
+        */
+        virtual void set_polynomials(int* poly_ptr, int poly_len) = 0;
+
+
+        /**
+        * @brief set_constrain_length                           set convolutional encode polynomials
+        * @param constrain_length                               [input] polynomial of convolution encode
+        * @return Result                                        execute result
+        */
+        virtual void set_constrain_length(int constrain_length) = 0;
     };    
 }
 

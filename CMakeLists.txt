@@ -4,6 +4,7 @@ Project(FEC_channel_decode)
 set(SHARED_LIBS_SOURCES
     src/FEC_channel_decode_api.cpp
     src/FEC_channel_decode_test_imp.cpp
+    src/comm_tool.cpp
     src/VIT/FEC_VIT_imp.cpp
 )
 

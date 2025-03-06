@@ -11,6 +11,14 @@ namespace FEC_CHANNEL_DECODE {
         void encode();
         void decode();
 
+        void set_polynomials(int* poly_ptr, int poly_len);
+        void set_constrain_length(int constrain_length);
+    
+
+    private:
+        int* _poly_ptr;
+        int _poly_len;
+        int _constrain_length;
     };
 }
 

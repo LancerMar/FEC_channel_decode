@@ -1,10 +1,15 @@
 #include "FEC_channel_decode_api.h"
 
 #include "FEC_channel_decode_test_imp.h"
+#include "FEC_VIT_imp.h"
 
 FEC_CHANNEL_DECODE_EXPORT FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_API * CreateFECChannelDecodeObj(FEC_CHANNEL_DECODE::FEC_Obj_type fec_obj_type){
     if(FEC_CHANNEL_DECODE::FEC_Obj_type::FEC_channel_decode_test == fec_obj_type){
         FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_API* app = new FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_TEST_IMP();
+        return app;
+    }
+    if (FEC_CHANNEL_DECODE::FEC_Obj_type::FEC_channel_decode_test == FEC_CHANNEL_DECODE::FEC_Obj_type::VIT) {
+        FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_API* app = new FEC_CHANNEL_DECODE::FEC_VIT_IMP();
         return app;
     }
 }
