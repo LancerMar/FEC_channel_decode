@@ -1,10 +1,10 @@
 #include "comm_tool.h"
 
-std::vector<char> Octal2binary(int Octal) {
+std::vector<char> octal_2_binary(int octal) {
     std::vector<std::vector<char>> octal_ref_binary = { {0,0,0},{0,0,1},{0,1,0},{0,1,1},
                                                     {1,0,0},{1,0,1},{1,1,0},{1,1,1} };
 
-    int Octal_tmp = Octal;
+    int Octal_tmp = octal;
     std::vector<char> binary_vec;
     while (Octal_tmp > 0.1) {
         int single_octal = Octal_tmp % 10;
@@ -30,7 +30,18 @@ std::vector<char> Octal2binary(int Octal) {
 }
 
 
+std::vector<char> decimal_2_binary(int decimal) {
+    int decima_tmp = decimal;
 
+    std::vector<char> binary_vec;
+    while (decima_tmp > 0.1) {
+        char binary_single = static_cast<char>(decima_tmp % 2);
+        binary_vec.insert(binary_vec.begin(), binary_single);
+        decima_tmp = decima_tmp / 2;
+    }
+
+    return binary_vec;
+}
 
 
 
