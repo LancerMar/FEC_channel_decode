@@ -6,4 +6,9 @@ namespace FEC_CHANNEL_DECODE{
         VIT,
         FEC_Obj_default,
     };
+
+    struct Result
+    {
+        bool is_success = true;
+    };
 }

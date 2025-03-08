@@ -43,7 +43,25 @@ std::vector<char> decimal_2_binary(int decimal) {
     return binary_vec;
 }
 
+std::vector<std::vector<char>> gen_binary_matrix_by_decimal(int max_decimal) {
+    std::vector<std::vector<char>> binary_matrix;
+    
+    for (int i = 0; i < max_decimal; i++) {
+        binary_matrix.push_back(decimal_2_binary(i));
+    }
 
+    // padding 0 in MSB of Matrix
+    int cols_max = binary_matrix[binary_matrix.size() - 1].size();
+
+    for (int i = binary_matrix.size() / 2 - 1; i > -1; i--) {
+        int num_zeros = cols_max - binary_matrix[i].size();
+        std::vector<char> zero_vec(num_zeros, 0);
+        zero_vec.insert(zero_vec.end(), binary_matrix[i].begin(), binary_matrix[i].end());
+        binary_matrix[i] = zero_vec;
+    }
+
+    return binary_matrix;
+}
 
 //template <class T>
 //std::vector<T> ptr2vec(T* data, int len) {

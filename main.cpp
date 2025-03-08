@@ -13,11 +13,14 @@ int main() {
     std::vector<int> poly{ 5,7 };
     app_vit->set_polynomials(poly.data(), poly.size());
     app_vit->set_constrain_length(3);
-
-    std::vector<std::vector<int>> poly_t{ {1,2,3},{4,5,6} };
-    int a = poly_t[0].size();
-
     app_vit->init();
+
+    std::vector<char> coded_data = { 1,0,1,1 };
+    char* decode_data;
+    int decode_data_len = 0;
+    FEC_CHANNEL_DECODE::Result result;
+    app_vit->decode(coded_data.data(), coded_data.size(), decode_data, decode_data_len, result);
+
 
     DeleteFECChannelDecodeObj(app_vit);
     return 0;

@@ -21,6 +21,7 @@ end
 identity_matrix = eye(2^(constrain_length-2));
 repeat_matrix = [1 1];
 input_ref_cur_pre = [zeros(2^(constrain_length-2),2^(constrain_length-1));kron(identity_matrix,repeat_matrix)];
+
 next_out_table = gen_next_out_table(poly);
 
 
