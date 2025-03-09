@@ -32,8 +32,20 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
     int state_count = std::pow(2, (_constrain_length - 1));
     int state_half = state_count / 2;
     int* HammingDist_set = new int[_output_reference.size()];
-    int input = 0;
+    
+    int* path_matric = new int[state_count];
+    for (int i = 0; i < state_count; i++) {
+        path_matric[i] = 0;
+    }
 
+    int next_out_0;
+    int next_out_1;
+    int branch_matric_0;
+    int branch_matric_1;
+
+    int idx = 0;
+
+    int input = 0;
     char* ptr_code_data_tmp = code_data_ptr;
     for (int i = 0; i < coded_data_grouping; i++) {
         // calculate the Hamming dist of coded data and all refrence
@@ -48,9 +60,23 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
                 pre_path_1_state = pre_path_1_state - state_count;
                 input = 1;
             }
+
+            next_out_0 = next_out_table[pre_path_0_state][input];
+            next_out_1 = next_out_table[pre_path_1_state][input];
+            branch_matric_0 = path_matric[pre_path_0_state] + HammingDist_set[next_out_0];
+            branch_matric_1 = path_matric[pre_path_1_state] + HammingDist_set[next_out_1];
+            
+            path_matric[state] = branch_matric_0;
+            if (branch_matric_1 < branch_matric_0) {
+                idx = 1;
+                path_matric[state] = branch_matric_1;
+            }
+
+
+
         }
 
-
+        
 
 
         // next output group
@@ -59,6 +85,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
 
 
     delete[] HammingDist_set;
+    delete[] path_matric;
 }
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::set_polynomials(int* poly_ptr, int poly_len) {
