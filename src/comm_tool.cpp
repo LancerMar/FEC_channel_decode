@@ -1,5 +1,7 @@
 #include "comm_tool.h"
 
+#include <cmath>
+
 std::vector<char> octal_2_binary(int octal) {
     std::vector<std::vector<char>> octal_ref_binary = { {0,0,0},{0,0,1},{0,1,0},{0,1,1},
                                                     {1,0,0},{1,0,1},{1,1,0},{1,1,1} };
@@ -41,6 +43,16 @@ std::vector<char> decimal_2_binary(int decimal) {
     }
 
     return binary_vec;
+}
+
+int binary_2_decimal(std::vector<char> bin_vec) {
+    int decimal_result = 0;
+
+    for (int i = bin_vec.size() - 1; i >= 0; i--) {
+        decimal_result = decimal_result + bin_vec[bin_vec.size()-i-1] * std::pow(2, i);
+    }
+
+    return decimal_result;
 }
 
 std::vector<std::vector<char>> gen_binary_matrix_by_decimal(int max_decimal) {

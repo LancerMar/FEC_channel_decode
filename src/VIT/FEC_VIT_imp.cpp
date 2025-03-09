@@ -19,6 +19,9 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::init() {
 
     //step 2: generate input reference previous state and current state table
     gen_input_ref_cur_pre();
+
+    //step 3: generate next out table
+    gen_next_out_table();
 }
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::encode() {}
@@ -46,6 +49,8 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
                 input = 1;
             }
         }
+
+
 
 
         // next output group
@@ -97,7 +102,29 @@ void  FEC_CHANNEL_DECODE::FEC_VIT_IMP::gen_input_ref_cur_pre() {
 }
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::gen_next_out_table() {
-    
+    int regs_count = std::pow(2, (_constrain_length - 1));
+    auto ref_regs_status_all = gen_binary_matrix_by_decimal(regs_count);
+
+    // input 0/1 , the output for every status 
+    for (int i = 0; i < ref_regs_status_all.size(); i++) {
+        
+        std::vector<char> next_state;
+        std::vector<char> next_out;
+        std::vector<char> next_out_table_tmp;
+
+        // input 0 
+        conv_encode_step(ref_regs_status_all[i], 0, next_state, next_out);
+        next_out_table_tmp.push_back(binary_2_decimal(next_out));
+        next_out.clear();
+
+        // input 1
+        conv_encode_step(ref_regs_status_all[i], 1, next_state, next_out);
+        next_out_table_tmp.push_back(binary_2_decimal(next_out));
+
+        next_out_table.push_back(next_out_table_tmp);
+    }
+
+    int a = 0;
 }
 
 
@@ -111,4 +138,30 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::cal_Hamming_dist_set(char* code_data_ptr, 
     }
 }
 
+
+void FEC_CHANNEL_DECODE::FEC_VIT_IMP::conv_encode_step(std::vector<char> state, char input, std::vector<char>& next_state, std::vector<char>& output) {
+    int output_count = _poly.size();
+    std::vector<char> regs;
+    
+    // gen registors set
+    regs.push_back(input);
+    for (int i = 0; i < state.size(); i++) {
+        regs.push_back(state[i]);
+    }
+
+    // 计算每一个多项式对应的输出
+    for (int i = 0; i < output_count; i++) {
+        int output_tmp = 0;
+        for(int j = 0;j< _poly[i].size(); j++) {
+            if (0 != _poly[i][j]) {
+                output_tmp = output_tmp + regs[j];
+            }
+        }
+
+        output.push_back(output_tmp % 2);
+    }
+
+    regs.pop_back();
+    next_state = regs;
+}
 
