@@ -19,3 +19,11 @@ void FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_TEST_IMP::encode(){
 }
         
 void FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_TEST_IMP::decode(){}
+
+
+void FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_TEST_IMP::set_polynomials(int* poly_ptr, int poly_len) {
+
+};
+void FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_TEST_IMP::set_constrain_length(int constrain_length) {
+
+};
