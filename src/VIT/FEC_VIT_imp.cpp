@@ -6,11 +6,11 @@
 #include "comm_tool.h"
 
 FEC_CHANNEL_DECODE::FEC_VIT_IMP::FEC_VIT_IMP() {
-    std::cout << "FEC_VIT_IMP()" << std::endl;
+    //std::cout << "FEC_VIT_IMP()" << std::endl;
 }
 
 FEC_CHANNEL_DECODE::FEC_VIT_IMP::~FEC_VIT_IMP() {
-    std::cout << "~FEC_VIT_IMP()" << std::endl;
+    //std::cout << "~FEC_VIT_IMP()" << std::endl;
 }
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::init() {
@@ -28,7 +28,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::encode() {}
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result result) {
     int output_once = _poly.size();
-    int coded_data_grouping = code_data_len / output_once;
+    int coded_data_grouping = code_data_len /output_once;
     int state_count = std::pow(2, (_constrain_length - 1));
     int state_half = state_count / 2;
     int* HammingDist_set = new int[_output_reference.size()];
@@ -37,6 +37,11 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
     for (int i = 0; i < state_count; i++) {
         path_matric[i] = 0;
     }
+    int* path_matric_temp = new int[state_count];
+    for (int i = 0; i < state_count; i++) {
+        path_matric_temp[i] = 0;
+    }
+    std::vector<std::vector<int>> suvive_path(state_count, std::vector<int>(coded_data_grouping,0));
 
     int next_out_0;
     int next_out_1;
@@ -55,7 +60,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
             int pre_path_0_state = (state << 1);
             int pre_path_1_state = (state << 1) + 1;
             input = 0;
-            if (state > std::pow(2, state_half)) {
+            if (state > state_half - 1) {
                 pre_path_0_state = pre_path_0_state - state_count;
                 pre_path_1_state = pre_path_1_state - state_count;
                 input = 1;
@@ -65,27 +70,48 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
             next_out_1 = next_out_table[pre_path_1_state][input];
             branch_matric_0 = path_matric[pre_path_0_state] + HammingDist_set[next_out_0];
             branch_matric_1 = path_matric[pre_path_1_state] + HammingDist_set[next_out_1];
-            
-            path_matric[state] = branch_matric_0;
+
             if (branch_matric_1 < branch_matric_0) {
                 idx = 1;
-                path_matric[state] = branch_matric_1;
+                path_matric_temp[state] = branch_matric_1;
+            }else{
+                idx = 0;
+                path_matric_temp[state] = branch_matric_0;
             }
 
-
-
+            if (state < state_half) {
+                suvive_path[state][i] = idx + state * 2;
+            }
+            else if (state >= state_half)
+            {
+                suvive_path[state][i] = idx + (state - state_half) * 2;
+            }
         }
-
         
-
+        memcpy(path_matric, path_matric_temp, state_count * sizeof(int));
 
         // next output group
         ptr_code_data_tmp = ptr_code_data_tmp + output_once;
     }
 
 
+    //trace back
+    int current_state = 0; // initial state for last bit
+    decode_data_ptr = new char[coded_data_grouping]; 
+    decode_data_len = coded_data_grouping;
+
+    int pre_state = 0;
+    for (int i = coded_data_grouping - 1; i > -1; i--) {
+        pre_state = suvive_path[current_state][i];
+        decode_data_ptr[i] = _input_ref_cur_pre_table[current_state][pre_state];
+        current_state = pre_state;
+    }
+
+
+
     delete[] HammingDist_set;
     delete[] path_matric;
+    delete[] path_matric_temp;
 }
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::set_polynomials(int* poly_ptr, int poly_len) {
@@ -151,7 +177,6 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::gen_next_out_table() {
         next_out_table.push_back(next_out_table_tmp);
     }
 
-    int a = 0;
 }
 
 
