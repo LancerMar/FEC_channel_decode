@@ -21,6 +21,7 @@ end
 identity_matrix = eye(2^(constrain_length-2));
 repeat_matrix = [1 1];
 input_ref_cur_pre = [zeros(2^(constrain_length-2),2^(constrain_length-1));kron(identity_matrix,repeat_matrix)];
+
 next_out_table = gen_next_out_table(poly);
 
 
@@ -38,6 +39,7 @@ for i = 1:1:(len_rx_data/rows)
     
     % 计算当前接收到的值与每个参考点的汉明距离
     rx_data_unit_extend_dim = kron(ones(2^rows,1),rx_data_unit);
+%     HammingDist_set = sum(and(xor(rx_data_unit_extend_dim,ref_hard),[1,1]),2);
     HammingDist_set = sum(xor(rx_data_unit_extend_dim,ref_hard),2);
     
     % 计算当前输出对应的每个状态的分支度量，路径度量，与幸存路径（工程实现中先右移一位在左移一位即可完成状态调整）

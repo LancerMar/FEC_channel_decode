@@ -16,9 +16,20 @@ namespace FEC_CHANNEL_DECODE{
         FEC_CHANNEL_DECODE_API(){};
         virtual ~FEC_CHANNEL_DECODE_API(){};
 
+        /**
+        * @brief init                                set convolutional encode polynomials
+        */
         virtual void init() = 0;
         virtual void encode() = 0;
-        virtual void decode() = 0;
+        /**
+        * @brief set_polynomials                                set convolutional encode polynomials
+        * @param code_data_ptr                                  [input] pointer of FEC coded data
+        * @param code_data_len                                  [input] length of  FEC coded data
+        * @param decode_data_ptr                                [input] pointer of FEC decoded data
+        * @param decode_data_len                                [input] length of FEC decoded data
+        * @param Result                                         [output] execute result
+        */
+        virtual void decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len,Result result) = 0;
 
         /**
         * @brief set_polynomials                                set convolutional encode polynomials                        
