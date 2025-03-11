@@ -1,12 +1,29 @@
-function decode_data = viterbi_decoder(rx_data,constrain_length,poly,punc_pattern)
+function decode_data = viterbi_decoder(rx_data,constrain_length,poly,is_punc,punc_pattern)
 %viterbi_decoder viterbi decode algorithm
 
 %[input] rx_data : received data sequence
 %[input] constrain_length : constrain length
 %[input] poly : polynomial for conv encode
+%[input] is_punc : if this sequce has been punctured
 %[input] punc_pattern : puncture pattern
 
-%[output] punc_pattern : puncture pattern
+%[output] decode_data : decoded data
+
+coded_data = rx_data;
+
+if 1==is_punc
+    rx_data_no_punc=zeros(length(punc_pattern),1);
+    rx_data_index = 1;
+    for i = 1:length(punc_pattern)
+        if punc_pattern(i) == 1
+            rx_data_no_punc(i) = rx_data(rx_data_index);
+            rx_data_index = rx_data_index+1;
+        end
+    end
+
+    coded_data = rx_data_no_punc;
+end
+
 
 %% generate output reference (refer to the length of polynomial)
 [rows,cols] = size(poly);
@@ -26,7 +43,7 @@ next_out_table = gen_next_out_table(poly);
 
 
 %% survive path caculate
-len_rx_data = length(rx_data);
+len_rx_data = length(coded_data);
 path_matric = zeros((2^(cols-1)),1); % 寄存器状态个数
 path_matric_temp = zeros((2^(cols-1)),1); % 寄存器状态个数
 suvive_single_path = zeros((2^(cols-1)),1);
@@ -35,12 +52,21 @@ suvive_path = zeros((2^(cols-1)),len_rx_data/rows);
 path_matric(1,1) = 0; % 初态从 0 开始计算
 % 依次获取单元个数的输出，进行度量计算（根据多项式个数确定 N:一个clock的输出个数）
 for i = 1:1:(len_rx_data/rows)
-    rx_data_unit = rx_data(rows*(i-1)+1:rows*i).';
-    
+    rx_data_unit = coded_data(rows*(i-1)+1:rows*i).';
+
     % 计算当前接收到的值与每个参考点的汉明距离
     rx_data_unit_extend_dim = kron(ones(2^rows,1),rx_data_unit);
+    
 %     HammingDist_set = sum(and(xor(rx_data_unit_extend_dim,ref_hard),[1,1]),2);
-    HammingDist_set = sum(xor(rx_data_unit_extend_dim,ref_hard),2);
+    if 0 == is_punc
+        HammingDist_set = sum(xor(rx_data_unit_extend_dim,ref_hard),2);
+    else
+        punc_pattern_unit = punc_pattern(rows*(i-1)+1:rows*i);
+        punc_pattern_unit_dim = kron(ones(2^rows,1),punc_pattern_unit);
+        diff_matrix = xor(rx_data_unit_extend_dim,ref_hard);
+        diff_matrix_punced = and(diff_matrix,punc_pattern_unit_dim);
+        HammingDist_set = sum(diff_matrix_punced,2);
+    end
     
     % 计算当前输出对应的每个状态的分支度量，路径度量，与幸存路径（工程实现中先右移一位在左移一位即可完成状态调整）
     for state = 1:1:2^(constrain_length-1)
