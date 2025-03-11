@@ -35,7 +35,6 @@ namespace FEC_CHANNEL_DECODE{
         * @brief set_polynomials                                set convolutional encode polynomials                        
         * @param poly_ptr                                       [input] polynomial of convolution encode (Octal)
         * @param poly_len                                       [input] length of polynomial
-        * @return Result                                        execute result
         */
         virtual void set_polynomials(int* poly_ptr, int poly_len) = 0;
 
@@ -43,9 +42,15 @@ namespace FEC_CHANNEL_DECODE{
         /**
         * @brief set_constrain_length                           set convolutional encode polynomials
         * @param constrain_length                               [input] polynomial of convolution encode
-        * @return Result                                        execute result
         */
         virtual void set_constrain_length(int constrain_length) = 0;
+
+        /**
+        * @brief set_constrain_length                           set convolutional encode polynomials
+        * @param punc_pattern_ptr                               [input] pointer of puncture pattern sequence
+        * @param punc_pattern_len                               [input] length of puncture pattern sequence
+        */
+        virtual void set_puncture_pattern(char* punc_pattern_ptr,int punc_pattern_len) = 0;
     };    
 }
 

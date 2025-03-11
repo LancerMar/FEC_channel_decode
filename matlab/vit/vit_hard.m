@@ -15,27 +15,31 @@ end
 % trellis = poly2trellis(3,[7 5]);
 trellis = poly2trellis(7,poly);
 
-data_info = randi([0 1],info_len,1);
-data_info = [data_info(1:end-6).' [0 0 0 0 0 0]].';
-% file_write_char(data_info,"D:\work\project\channel_encode_decode\git_repo\FEC_channel_decode\test_data\vit_source_1200_171_7.dat");
+% data_info = randi([0 1],info_len,1);
+% data_info = [data_info(1:end-6).' [0 0 0 0 0 0]].';
+% file_write_char(data_info,"D:\work\project\channel_encode_decode\git_repo\FEC_channel_decode\test_data\vit\vit_source_1200_conv217_punc_110110.dat");
 
-% data_info = file_read_char("D:\work\project\channel_encode_decode\git_repo\FEC_channel_decode\test_data\vit_source_1200.dat");
+data_info = file_read_char("../../test_data/vit/vit_source_1200_conv217_punc_110110.dat");
 
 % coded_data = convenc(data_info,trellis);
 % file_write_char(coded_data,"D:\work\project\channel_encode_decode\git_repo\FEC_channel_decode\test_data\vit_source_1200_conv213_7_133_171.dat");
 
-% coded_data = file_read_char("D:\work\project\channel_encode_decode\git_repo\FEC_channel_decode\test_data\vit_source_1200_conv213_5_7.dat");
+coded_data = file_read_char("../../test_data/vit/vit_source_1200_conv217_punc_110110_encode.dat");
 
-coded_data = convenc(data_info,trellis,punc_all);
+% coded_data = convenc(data_info,trellis,punc_all);
+% file_write_char(coded_data,"D:\work\project\channel_encode_decode\git_repo\FEC_channel_decode\test_data\vit\vit_source_1200_conv217_punc_110110_encode.dat");
 
 
-% add noise
-snr = 8;
-[~,hard_bit] = qpsk_mod_demod_soft(coded_data,snr);
-biterr(hard_bit,coded_data)
+% % add noise
+% snr = 8;
+% [~,hard_bit] = qpsk_mod_demod_soft(coded_data,snr);
+% biterr(hard_bit,coded_data)
 
 % file_write_char(hard_bit,"D:\work\project\channel_encode_decode\git_repo\FEC_channel_decode\test_data\vit_source_1200_conv213_5_7_snr_6.dat");
 % file_write_char(hard_bit,"D:\work\project\channel_encode_decode\git_repo\FEC_channel_decode\test_data\vit_source_1200_conv213_7_133_171_snr_6.dat");
+% file_write_char(hard_bit,"D:\work\project\channel_encode_decode\git_repo\FEC_channel_decode\test_data\vit\vit_source_1200_conv217_punc_110110_encode_snr_8.dat");
+
+hard_bit = file_read_char("../../test_data/vit/vit_source_1200_conv217_punc_110110_encode_snr_8.dat");
 
 tic;
 data_decodec_vit = vitdec(hard_bit,trellis,35,'trunc','hard',punc_all);
@@ -51,7 +55,7 @@ biterr(data_decodec_vit,data_info)
 constrain_length = 7;
 poly_conv = [1 0 1 1 0 1 1; 1 1 1 1 0 0 1];
 
-rx_data = hard_bit;
+rx_data = coded_data;
 is_punc = 1;
 
 tic;
