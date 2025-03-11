@@ -27,8 +27,40 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::init() {
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::encode() {}
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result result) {
+    
+    char* ptr_code_data_tmp = code_data_ptr;
+    char* punc_sequence_ptr = nullptr;
+    std::vector<char> punc_all;
+    std::vector<char> coded_data_no_punc;
+    int _input_data_len = code_data_len;
+
+    // generate puncture pattern
+    if (0 != _punc_pattern_vec.size()) {
+        int code_frame_no_punc_size = _poly.size() * (code_data_len * _input_count_punc_pattern) / _output_count_punc_pattern;
+        _input_data_len = code_frame_no_punc_size;
+        int cycle = code_frame_no_punc_size / _punc_pattern_vec.size();
+
+        
+        for (int i = 0; i < cycle; i++) {
+            punc_all.insert(punc_all.end(), _punc_pattern_vec.begin(), _punc_pattern_vec.end());
+        }
+
+        //expand the encoded data
+        std::vector<char> coded_data_no_punc_tmp(punc_all.size(),0);
+        coded_data_no_punc = coded_data_no_punc_tmp;
+        int coded_data_index = 0;
+        for (int i = 0; i < punc_all.size(); i++) {
+            if (1 == punc_all[i]) {
+                coded_data_no_punc[i] = code_data_ptr[coded_data_index];
+                coded_data_index = coded_data_index + 1;
+            }
+        }
+        ptr_code_data_tmp = coded_data_no_punc.data();
+        punc_sequence_ptr = punc_all.data();
+    }
+    
     int output_once = _poly.size();
-    int coded_data_grouping = code_data_len /output_once;
+    int coded_data_grouping = _input_data_len /output_once;
     int state_count = std::pow(2, (_constrain_length - 1));
     int state_half = state_count / 2;
     int* HammingDist_set = new int[_output_reference.size()];
@@ -51,10 +83,10 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
     int idx = 0;
 
     int input = 0;
-    char* ptr_code_data_tmp = code_data_ptr;
+    
     for (int i = 0; i < coded_data_grouping; i++) {
         // calculate the Hamming dist of coded data and all refrence
-        cal_Hamming_dist_set(ptr_code_data_tmp, HammingDist_set);
+        cal_Hamming_dist_set(ptr_code_data_tmp, HammingDist_set, punc_sequence_ptr);
         
         for (int state = 0; state < state_count; state++) {
             int pre_path_0_state = (state << 1);
@@ -92,6 +124,10 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
 
         // next output group
         ptr_code_data_tmp = ptr_code_data_tmp + output_once;
+        // next puncture unit for output
+        if (nullptr != punc_sequence_ptr) {
+            punc_sequence_ptr = punc_sequence_ptr + output_once;
+        }
     }
 
 
@@ -126,6 +162,22 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::set_constrain_length(int constrain_length)
     _constrain_length = constrain_length;
 };
 
+void FEC_CHANNEL_DECODE::FEC_VIT_IMP::set_puncture_pattern(char* punc_pattern_ptr, int punc_pattern_len) {
+    std::vector<char> punc_pattern_vec(punc_pattern_ptr, punc_pattern_ptr + punc_pattern_len);
+    _punc_pattern_vec = punc_pattern_vec;
+    
+    int input_count_punc_pattern = punc_pattern_vec.size() / _poly.size();
+    int output_count_punc_pattern = 0;
+    for (int i = 0; i < punc_pattern_vec.size(); i++) {
+        if (1 == punc_pattern_vec[i]) {
+            output_count_punc_pattern = output_count_punc_pattern + 1;
+        }
+    }
+
+    _input_count_punc_pattern = input_count_punc_pattern;
+    _output_count_punc_pattern = output_count_punc_pattern;
+
+}
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::gen_output_reference() {
     int output_count = std::pow(2, _poly.size());
@@ -180,11 +232,17 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::gen_next_out_table() {
 }
 
 
-void FEC_CHANNEL_DECODE::FEC_VIT_IMP::cal_Hamming_dist_set(char* code_data_ptr, int*& HammingDist_set_ptr) {
+void FEC_CHANNEL_DECODE::FEC_VIT_IMP::cal_Hamming_dist_set(char* code_data_ptr, int*& HammingDist_set_ptr,char* punc_unit_ptr) {
+    char* punc_unit_temp_ptr = punc_unit_ptr;
     for (int i = 0; i < _output_reference.size(); i++) {
         int ham_dist_i = 0;
         for (int j = 0; j < _output_reference[i].size(); j++) {
-            ham_dist_i = ham_dist_i + (code_data_ptr[j] + _output_reference[i][j]) % 2;
+            if (nullptr == punc_unit_temp_ptr) {
+                ham_dist_i = ham_dist_i +  (code_data_ptr[j] + _output_reference[i][j]) % 2;
+            }
+            else {
+                ham_dist_i = ham_dist_i + static_cast<int>(punc_unit_temp_ptr[j] & (code_data_ptr[j] + _output_reference[i][j])) % 2;
+            }
         }
         HammingDist_set_ptr[i] = ham_dist_i;
     }

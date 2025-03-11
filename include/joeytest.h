@@ -11,8 +11,8 @@ struct UTEST_result{
     
     void print(){
         std::cout<< "[UNIT_TEST_count] : "<< total_case <<std::endl;
-        std::cout<< "[PASS] UNIT test count : "<< failed_case<<std::endl;
-        std::cout<< "[FAIL] UNIT test count : "<< success_case<<std::endl;
+        std::cout<< "[PASS] UNIT test count : "<< success_case <<std::endl;
+        std::cout<< "[FAIL] UNIT test count : "<< failed_case <<std::endl;
     }
 };
 

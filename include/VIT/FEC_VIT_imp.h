@@ -16,6 +16,7 @@ namespace FEC_CHANNEL_DECODE {
 
         void set_polynomials(int* poly_ptr, int poly_len);
         void set_constrain_length(int constrain_length);
+        void set_puncture_pattern(char* punc_pattern_ptr, int punc_pattern_len);
     
     private:
         // enumerate all output states
@@ -30,7 +31,7 @@ namespace FEC_CHANNEL_DECODE {
         * @param code_data_ptr                                  [input] pointer of coded data sequence position
         * @param HammingDist_set_ptr                            [output] pointer of HammingDist set
         */
-        void cal_Hamming_dist_set(char* code_data_ptr, int* &HammingDist_set_ptr);
+        void cal_Hamming_dist_set(char* code_data_ptr, int* &HammingDist_set_ptr,char* punc_unit_ptr = nullptr);
         
         /**
         * @brief conv_encode_step                               calculate Hamming distance set for every output groups
@@ -47,6 +48,10 @@ namespace FEC_CHANNEL_DECODE {
         std::vector<std::vector<char>> _output_reference;
         std::vector<std::vector<char>> _input_ref_cur_pre_table;
         std::vector<std::vector<char>> next_out_table;
+        
+        std::vector<char> _punc_pattern_vec;                                                            // puncture pattern
+        int _input_count_punc_pattern = 0;                                                              // input nums of 1 punc_pattern
+        int _output_count_punc_pattern = 0;                                                             // output nums of 1 punc pattern 
     };
 }
 
