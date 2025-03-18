@@ -24,9 +24,11 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::init() {
     gen_next_out_table();
 }
 
-void FEC_CHANNEL_DECODE::FEC_VIT_IMP::encode() {}
+void FEC_CHANNEL_DECODE::FEC_VIT_IMP::encode(char* source_data_ptr, int source_data_len, char*& encode_data_ptr, int& encode_data_len, Result& result) {
+    
+}
 
-void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result result) {
+void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result& result) {
     
     char* ptr_code_data_tmp = code_data_ptr;
     char* punc_sequence_ptr = nullptr;

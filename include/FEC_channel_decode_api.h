@@ -20,16 +20,25 @@ namespace FEC_CHANNEL_DECODE{
         * @brief init                                set convolutional encode polynomials
         */
         virtual void init() = 0;
-        virtual void encode() = 0;
+        
         /**
-        * @brief set_polynomials                                set convolutional encode polynomials
+        * @brief encode                                         FEC encoder
+        * @param source_data_ptr                                [input] pointer of FEC source data
+        * @param source_data_len                                [input] length of FEC source data
+        * @param encode_data_ptr                                [input] pointer of FEC encode data
+        * @param encode_data_len                                [input] length of FEC encode data
+        * @param result                                         [output] execute result
+        */
+        virtual void encode(char* source_data_ptr,int source_data_len,char* & encode_data_ptr,int& encode_data_len, Result &result) = 0;
+        /**
+        * @brief decode                                         FEC decoder
         * @param code_data_ptr                                  [input] pointer of FEC coded data
         * @param code_data_len                                  [input] length of  FEC coded data
         * @param decode_data_ptr                                [input] pointer of FEC decoded data
         * @param decode_data_len                                [input] length of FEC decoded data
-        * @param Result                                         [output] execute result
+        * @param result                                         [output] execute result
         */
-        virtual void decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len,Result result) = 0;
+        virtual void decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len,Result &result) = 0;
 
         /**
         * @brief set_polynomials                                set convolutional encode polynomials                        
