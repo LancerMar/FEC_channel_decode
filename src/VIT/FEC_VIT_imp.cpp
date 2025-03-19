@@ -25,7 +25,13 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::init() {
 }
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::encode(char* source_data_ptr, int source_data_len, char*& encode_data_ptr, int& encode_data_len, Result& result) {
-    
+    // TODO: create registers
+
+    // TODO: input 1 bit to registers
+
+    // TODO: calculate output by polynomial
+
+    // TODO: output the result
 }
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result& result) {
