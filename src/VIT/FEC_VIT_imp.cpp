@@ -25,13 +25,20 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::init() {
 }
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::encode(char* source_data_ptr, int source_data_len, char*& encode_data_ptr, int& encode_data_len, Result& result) {
-    // TODO: create registers
+    // step 1: create registers
+    std::vector<char> regs(_constrain_length, 0);
 
-    // TODO: input 1 bit to registers
+    // step 2: input 1 bit to registers
+    std::vector<char> state = regs; 
+    std::vector<char> encode_data;
+    for (int i = 0; i < source_data_len; i++) {
+        std::vector<char> next_state;
+        std::vector<char> output_step;
 
-    // TODO: calculate output by polynomial
-
-    // TODO: output the result
+        conv_encode_step(state, source_data_ptr[i], next_state, output_step);
+        state = next_state;
+        encode_data.insert(encode_data
+    }
 }
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result& result) {
