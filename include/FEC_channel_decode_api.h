@@ -60,6 +60,8 @@ namespace FEC_CHANNEL_DECODE{
         * @param punc_pattern_len                               [input] length of puncture pattern sequence
         */
         virtual void set_puncture_pattern(char* punc_pattern_ptr,int punc_pattern_len) = 0;
+    
+
     };    
 }
 
