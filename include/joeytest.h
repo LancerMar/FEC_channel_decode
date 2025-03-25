@@ -2,7 +2,7 @@
 
 #define UNIT_TEST_HEADER(STRING) std::cout<<" ### [UNIT_TEST] : "<<STRING<<" ####"<<std::endl;
 #define ENTER() std::cout<<std::endl;
-#define UNIT_TEST_SUM(STRING) std::cout<<"\r\n ##### [UNIT_TEST_SUM] : "<<STRING<<" #####"<<std::endl;
+#define UNIT_TEST_SUM(STRING) std::cout<<"\r\n ##### [UNIT_TEST_SUM] : "<<STRING<<" ##### \r\n"<<std::endl;
 
 struct UTEST_result{
     int total_case = 0;             // all test case count

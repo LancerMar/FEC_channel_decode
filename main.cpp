@@ -10,6 +10,7 @@ std::vector<char> load_char_file_to_vec(std::string file_path);
 
 void UTEST_VIT_decode(UTEST_result& result);
 void UTEST_VIT_conv217_punc110110_decode(UTEST_result& result);
+void UTEST_conv_encode(UTEST_result& result);
 
 int main() {
 
@@ -17,11 +18,59 @@ int main() {
 
     UTEST_VIT_decode(result_vit);
     UTEST_VIT_conv217_punc110110_decode(result_vit);
+    UTEST_conv_encode(result_vit);
 
     UNIT_TEST_SUM("Unit test for vit decode");
     result_vit.print();
 
     return 0;
+}
+void UTEST_conv_encode(UTEST_result& result) {
+    UNIT_TEST_HEADER("UTEST_conv_encode");
+    result.total_case = result.total_case + 1;
+
+    //prepare source data
+    std::string source_data_path = "../test_data/vit/vit_source_1200_171_7.dat";
+    auto source_data = load_char_file_to_vec(source_data_path);
+    source_data.erase(source_data.end()-1);
+
+    //start encode
+    auto app_vit = CreateFECChannelDecodeObj(FEC_CHANNEL_DECODE::FEC_Obj_type::VIT);
+
+    // step 1: initialize
+    std::vector<int> poly{ 133,171 };
+    app_vit->set_polynomials(poly.data(), poly.size());
+    app_vit->set_constrain_length(7);
+    app_vit->init();
+
+    // step 2: conv encode
+    char* encoded_data_ptr;
+    int encoded_data_len;
+    FEC_CHANNEL_DECODE::Result result_conv;
+    app_vit->encode(source_data.data(),source_data.size(), encoded_data_ptr, encoded_data_len, result_conv);
+
+    char* decode_data;
+    int decode_data_len = 0;
+    FEC_CHANNEL_DECODE::Result result_vit;
+    app_vit->decode(encoded_data_ptr, encoded_data_len, decode_data, decode_data_len, result_vit);
+
+    int count_diff_bit = 0;
+    for (int i = 0; i < decode_data_len; i++) {
+        if (decode_data[i] != source_data[i]) {
+            count_diff_bit = count_diff_bit + 1;
+        }
+    }
+
+    if (0 == count_diff_bit) {
+        std::cout << "[PASS] : UTEST_conv_encode" << std::endl;
+        result.success_case = result.success_case + 1;
+    }
+    else {
+        std::cout << "[FAIL] : UTEST_conv_encode" << std::endl;
+        result.failed_case = result.failed_case + 1;
+    }
+
+    DeleteFECChannelDecodeObj(app_vit);
 }
 
 void UTEST_VIT_conv217_punc110110_decode(UTEST_result& result) {
