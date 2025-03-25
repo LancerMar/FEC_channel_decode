@@ -8,8 +8,8 @@ namespace FEC_CHANNEL_DECODE{
         virtual ~FEC_CHANNEL_DECODE_TEST_IMP();
 
         void init();
-        void encode();
-        void decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result result);
+        void encode(char* source_data_ptr, int source_data_len, char*& encode_data_ptr, int& encode_data_len, Result& result);
+        void decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result &result);
 
         void set_polynomials(int* poly_ptr, int poly_len);
         void set_constrain_length(int constrain_length);

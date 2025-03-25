@@ -24,9 +24,31 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::init() {
     gen_next_out_table();
 }
 
-void FEC_CHANNEL_DECODE::FEC_VIT_IMP::encode() {}
+void FEC_CHANNEL_DECODE::FEC_VIT_IMP::encode(char* source_data_ptr, int source_data_len, char*& encode_data_ptr, int& encode_data_len, Result& result) {
+    // step 1: create registers
+    std::vector<char> regs(_constrain_length, 0);
 
-void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result result) {
+    // step 2: input 1 bit to registers
+    std::vector<char> state = regs; 
+    std::vector<char> encode_data;
+    for (int i = 0; i < source_data_len; i++) {
+        std::vector<char> next_state;
+        std::vector<char> output_step;
+
+        conv_encode_step(state, source_data_ptr[i], next_state, output_step);
+        state = next_state;
+        encode_data.insert(encode_data.end(), output_step.begin(), output_step.end());
+    }
+
+    encode_data_len = encode_data.size();
+    encode_data_ptr = new char[encode_data.size()];
+    memcpy(encode_data_ptr, encode_data.data(), encode_data_len * sizeof(char));
+
+    result.is_success = true;
+
+}
+
+void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result& result) {
     
     char* ptr_code_data_tmp = code_data_ptr;
     char* punc_sequence_ptr = nullptr;

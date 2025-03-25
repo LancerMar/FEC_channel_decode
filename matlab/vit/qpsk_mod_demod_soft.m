@@ -11,7 +11,7 @@ function [llr_data,hard_data] = qpsk_mod_demod_soft(data,snr)
     rxSig = awgn(data_qpsk_mod,snr);
     
     % 过信道后星座图
-   % scatterplot(rxSig);
+    % scatterplot(rxSig);
     
     % 软判决
     llr_data = pskdemod(rxSig,4,OutputType='llr');
