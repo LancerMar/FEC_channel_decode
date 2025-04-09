@@ -55,7 +55,7 @@ path_matric_temp = zeros((2^(cols-1)),1); % 寄存器状态个数
 suvive_single_path = zeros((2^(cols-1)),1);
 suvive_path = zeros((2^(cols-1)),len_rx_data/rows);
 
-path_matric(1,1) = 0; % init state should calculate frome 0
+path_matric(1,1) = 0; % init state should calculate from 0
 
 % unit set of output
 for i = 1:1:(len_rx_data/rows)
@@ -79,6 +79,33 @@ for i = 1:1:(len_rx_data/rows)
         
         next_out_0 = next_out_table(pre_path_0_state,input+1) + 1;
         next_out_1 = next_out_table(pre_path_1_state,input+1) + 1;
+        branch_matric_0 = path_matric(pre_path_0_state,1) + euclidean_dist(next_out_0,1); 
+        branch_matric_1 = path_matric(pre_path_1_state,1) + euclidean_dist(next_out_1,1);
+        [branch_matric_min,idx] = min([branch_matric_0,branch_matric_1]);
 
+        path_matric_temp(state,1) = branch_matric_min;
+        
+        if state < 2^(constrain_length-2)+1
+            suvive_single_path(state,1) = idx + (state - 1)*2;
+        end
+        
+        if state > 2^(constrain_length-2)
+            suvive_single_path(state,1) = idx + (state - (2^(constrain_length-2)+1))*2;
+        end
     end
+    path_matric = path_matric_temp;
+    suvive_path(:,i) = suvive_single_path;
 end
+
+% trace back
+current_state = 1; % 最后一位的初始状态
+input = zeros(1,len_rx_data/rows); % 译码结果
+
+for i= (len_rx_data/rows):-1:1
+    pre_state = suvive_path(current_state,i);
+    input(i) = input_ref_cur_pre(current_state,pre_state);
+    current_state = pre_state;
+end
+
+decode_data = input;
+biterr(decode_data',data_info);
