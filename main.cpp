@@ -23,6 +23,7 @@ int main() {
     UNIT_TEST_SUM("Unit test for vit decode");
     result_vit.print();
 
+    getchar();
     return 0;
 }
 void UTEST_conv_encode(UTEST_result& result) {
@@ -98,9 +99,10 @@ void UTEST_VIT_conv217_punc110110_decode(UTEST_result& result) {
     int decode_data_len = 0;
     FEC_CHANNEL_DECODE::Result result_vit;
 
+
     clock_t start, stop;
     start = clock();
-    app_vit->decode(coded_data.data(), coded_data.size(), decode_data, decode_data_len, result_vit);
+        app_vit->decode(coded_data.data(), coded_data.size(), decode_data, decode_data_len, result_vit);
     stop = clock();
     std::cout << "VIT decode time: " << double(stop - start) / CLOCKS_PER_SEC << std::endl;
 
@@ -150,7 +152,9 @@ void UTEST_VIT_decode(UTEST_result& result) {
 
     clock_t start, stop;
     start = clock();
-    app_vit->decode(coded_data.data(), coded_data.size(), decode_data, decode_data_len, result_vit);
+    for (int i = 0; i < 52000; i++) {
+        app_vit->decode(coded_data.data(), coded_data.size(), decode_data, decode_data_len, result_vit);
+    }
     stop = clock();
     std::cout << "VIT decode time: " << double(stop - start) / CLOCKS_PER_SEC << std::endl;
 
