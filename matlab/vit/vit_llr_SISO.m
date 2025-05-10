@@ -2,7 +2,7 @@ clear all;
 clc
 
 %% =========== encode ================
-info_len=26112*2;
+info_len=1200;
 poly = [133 171];
 trellis = poly2trellis(7,poly);
 
@@ -12,14 +12,14 @@ data_info = [data_info(1:end-6).' [0 0 0 0 0 0]].';
 coded_data = convenc(data_info,trellis);
 
 %% ========== modulate - AWGN - demodulate ==========
-snr=4;
+snr=12;
 [llr_data,hard_data] = qpsk_mod_demod_soft(coded_data,snr);
 llr_path = "../../test_data/vit/vit_source_1200_conv213_7_133_171_snr_12_llr.dat";
 % file_write_double(llr_data,llr_path);
 
 % hard decision decode
 data_decodec_vit_hard = vitdec(coded_data,trellis,35,'trunc','hard');
-biterr(data_info,data_decodec_vit_hard);
+biterr(data_info,data_decodec_vit_hard)
 info_path = "../../test_data/vit/vit_source_1200_conv213_7_133_171_snr_12_llr_info.dat";
 % file_write_char(data_info,info_path);
 
@@ -27,14 +27,8 @@ info_path = "../../test_data/vit/vit_source_1200_conv213_7_133_171_snr_12_llr_in
 constrain_length = 7;
 poly_conv = [1 0 1 1 0 1 1; 1 1 1 1 0 0 1];
 
-% info_bits = file_read_char(info_path);
-% rx_llr = file_read_double(llr_path);
-
-rx_llr = llr_data;
-% rx_llr = file_read_double(llr_path);
-
-decode_data_func_test = viterbi_decoder_llr(rx_llr,constrain_length,poly_conv);
-biterr(decode_data_func_test',data_info)
+info_bits = file_read_char(info_path);
+rx_llr = file_read_double(llr_path);
 
 
 %% generate output reference (refer to the length of polynomial)
@@ -60,6 +54,9 @@ path_matric = zeros((2^(cols-1)),1); % 寄存器状态个数
 path_matric_temp = zeros((2^(cols-1)),1); % 寄存器状态个数
 suvive_single_path = zeros((2^(cols-1)),1);
 suvive_path = zeros((2^(cols-1)),len_rx_data/rows);
+
+branch_diff_matric = zeros((2^(cols-1)),len_rx_data/rows);
+branch_diff_matric_tmp = zeros((2^(cols-1)),1);
 
 path_matric(1,1) = 0; % init state should calculate from 0
 
@@ -90,6 +87,7 @@ for i = 1:1:(len_rx_data/rows)
         [branch_matric_min,idx] = min([branch_matric_0,branch_matric_1]);
 
         path_matric_temp(state,1) = branch_matric_min;
+        branch_diff_matric_tmp(state,1) = abs(branch_matric_0 - branch_matric_1); 
         
         if state < 2^(constrain_length-2)+1
             suvive_single_path(state,1) = idx + (state - 1)*2;
@@ -101,6 +99,19 @@ for i = 1:1:(len_rx_data/rows)
     end
     path_matric = path_matric_temp;
     suvive_path(:,i) = suvive_single_path;
+    branch_diff_matric(:,i) = branch_diff_matric_tmp;
+end
+
+% trace back every bit to find minimum
+
+% trace back llr_output
+current_state = 1; % 最后一位的初始状态
+input_llr = zeros(1,len_rx_data/rows); % 译码结果
+
+for i= (len_rx_data/rows):-1:1
+    pre_state = suvive_path(current_state,i);
+
+
 end
 
 % trace back
@@ -114,4 +125,4 @@ for i= (len_rx_data/rows):-1:1
 end
 
 decode_data = input;
-biterr(decode_data',data_info)
+biterr(decode_data',data_info);
