@@ -68,7 +68,9 @@ data_info = [data_info(1:end-6).' [0 0 0 0 0 0]].';
 coded_data = convenc(data_info,trellis);
 
 tic;
-data_decodec_vit = vitdec(coded_data,trellis,35,'trunc','hard');
+for i=1:1:500
+    data_decodec_vit = vitdec(coded_data,trellis,35,'trunc','hard');
+end
 toc;
 
 constrain_length = 7;
