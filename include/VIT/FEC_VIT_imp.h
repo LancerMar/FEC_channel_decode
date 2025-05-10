@@ -11,8 +11,8 @@ namespace FEC_CHANNEL_DECODE {
 
         void init();
         void encode(char* source_data_ptr, int source_data_len, char*& encode_data_ptr, int& encode_data_len, Result& result);
-
         void decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result& result);
+        void decode(double* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result& result);
 
         void set_polynomials(int* poly_ptr, int poly_len);
         void set_constrain_length(int constrain_length);
@@ -30,9 +30,17 @@ namespace FEC_CHANNEL_DECODE {
         * @brief cal_Hamming_dist_set                           calculate Hamming distance set for every output groups
         * @param code_data_ptr                                  [input] pointer of coded data sequence position
         * @param HammingDist_set_ptr                            [output] pointer of HammingDist set
+        * @param HammingDist_set_ptr                            [input][default] pointer of puncture pattern
         */
         void cal_Hamming_dist_set(char* code_data_ptr, int* &HammingDist_set_ptr,char* punc_unit_ptr = nullptr);
         
+        /**
+        * @brief cal_euclidean_dist_set                         calculate euclidean distance set for every output groups
+        * @param code_data_ptr                                  [input] pointer of coded data sequence position
+        * @param HammingDist_set_ptr                            [output] pointer of euclidean distance
+        */
+        void cal_euclidean_dist_set(double* code_data_ptr, double*& euclidean_dist_set_ptr);
+
         /**
         * @brief conv_encode_step                               calculate Hamming distance set for every output groups
         * @param state                                          [input] pointer of coded data sequence position
@@ -46,6 +54,7 @@ namespace FEC_CHANNEL_DECODE {
         int _constrain_length;
 
         std::vector<std::vector<char>> _output_reference;
+        std::vector<std::vector<double>> _output_reference_llr;
         std::vector<std::vector<char>> _input_ref_cur_pre_table;
         std::vector<std::vector<char>> next_out_table;
         

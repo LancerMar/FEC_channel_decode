@@ -41,6 +41,16 @@ namespace FEC_CHANNEL_DECODE{
         virtual void decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len,Result &result) = 0;
 
         /**
+        * @brief decode(LLR)                                    FEC decoder (log likelyhood ration(LLR) demode data input)
+        * @param code_data_ptr                                  [input] pointer of FEC coded data(LLR)
+        * @param code_data_len                                  [input] length of  FEC coded data(LLR)
+        * @param decode_data_ptr                                [input] pointer of FEC decoded data
+        * @param decode_data_len                                [input] length of FEC decoded data
+        * @param result                                         [output] execute result
+        */
+        virtual void decode(double* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result& result) = 0;
+
+        /**
         * @brief set_polynomials                                set convolutional encode polynomials                        
         * @param poly_ptr                                       [input] polynomial of convolution encode (Octal)
         * @param poly_len                                       [input] length of polynomial

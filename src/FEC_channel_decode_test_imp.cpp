@@ -19,7 +19,7 @@ void FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_TEST_IMP::encode(char* source_data_p
 }
         
 void FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_TEST_IMP::decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result &result) {}
-
+void FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_TEST_IMP::decode(double* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result& result) {}
 
 void FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_TEST_IMP::set_polynomials(int* poly_ptr, int poly_len) {}
 void FEC_CHANNEL_DECODE::FEC_CHANNEL_DECODE_TEST_IMP::set_constrain_length(int constrain_length) {}
