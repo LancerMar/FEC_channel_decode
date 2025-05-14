@@ -4,6 +4,7 @@ function decode_data = viterbi_decoder_llr(rx_llr,constrain_length,poly)
 %[input] rx_llr : received data sequence (llr)
 %[input] constrain_length : constrain length
 %[input] poly : polynomial for conv encode
+%[input] punc_pattern : puncture pattern
 
 %[output] decode_data : decoded data
 
