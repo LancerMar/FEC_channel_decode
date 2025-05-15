@@ -33,7 +33,7 @@ poly_conv = [1 0 1 1 0 1 1; 1 1 1 1 0 0 1];
 rx_llr = llr_data;
 % rx_llr = file_read_double(llr_path);
 
-decode_data_func_test = viterbi_decoder_llr(rx_llr,constrain_length,poly_conv);
+decode_data_func_test = viterbi_decoder_llr(rx_llr,constrain_length,poly_conv,[]);
 biterr(decode_data_func_test',data_info)
 
 
