@@ -1,11 +1,44 @@
-function decode_data = viterbi_decoder_llr(rx_llr,constrain_length,poly)
+function decode_data = viterbi_decoder_llr(rx_llr,constrain_length,poly,punc_pattern)
 %viterbi_decoder_llr viterbi decode algorithm for SIHO
 
 %[input] rx_llr : received data sequence (llr)
 %[input] constrain_length : constrain length
 %[input] poly : polynomial for conv encode
+%[input] punc_pattern : puncture pattern
 
 %[output] decode_data : decoded data
+
+%% proc input data by puncture pattern
+if 0 ~= length(punc_pattern)
+    punc_pattern_1 = sum(punc_pattern);
+    depunc_group = floor(length(rx_llr)/punc_pattern_1);
+    punc_seq = [];
+    for i=1:1:depunc_group
+        punc_seq = [punc_seq punc_pattern];
+    end
+
+    for i=1:1:mod(length(rx_llr),punc_pattern_1)
+        punc_seq = [punc_seq punc_pattern(i)];
+    end
+
+    rx_unpunc_seq = zeros(length(punc_seq),1);
+    rx_llr_idx = 1;
+    for i =1:1:length(punc_seq)
+        if punc_seq(i) == 1
+            rx_unpunc_seq(i) = rx_llr(rx_llr_idx);
+            rx_llr_idx = rx_llr_idx+1;
+        end
+    end
+
+    rx_llr = rx_unpunc_seq;
+
+end
+
+
+% expand puncture pattern by length of rx_llr
+
+% rx_data_unpunc = zeros(len)
+
 
 %% generate output reference (refer to the length of polynomial)
 [rows,cols] = size(poly);

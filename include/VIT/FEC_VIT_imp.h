@@ -49,6 +49,7 @@ namespace FEC_CHANNEL_DECODE {
         * @param output                                         [output] output sequence
         */
         void conv_encode_step(std::vector<char> state, char input, std::vector<char> &next_state, std::vector<char> &output);
+    
     private:
         std::vector<std::vector<char>> _poly;
         int _constrain_length;

@@ -3,8 +3,8 @@ clc
 
 %% =========== encode ================
 info_len=1200;
-poly = [133 171];
-trellis = poly2trellis(7,poly);
+poly = [7 5];
+trellis = poly2trellis(3,poly);
 
 data_info = randi([0 1],info_len,1);
 data_info = [data_info(1:end-6).' [0 0 0 0 0 0]].';
@@ -24,12 +24,26 @@ info_path = "../../test_data/vit/vit_source_1200_conv213_7_133_171_snr_12_llr_in
 % file_write_char(data_info,info_path);
 
 %% ========= llr decode ================
-constrain_length = 7;
-poly_conv = [1 0 1 1 0 1 1; 1 1 1 1 0 0 1];
 
-info_bits = file_read_char(info_path);
-rx_llr = file_read_double(llr_path);
+soft_decision_data = sova0(llr_data',[1 1 1; 1 0 1]);
+input_llr_hard = [];
+for i = soft_decision_data
+    if i<0
+        input_llr_hard = [input_llr_hard 0];
+    else
+        input_llr_hard = [input_llr_hard 1];
+    end
+end
 
+biterr(input_llr_hard',data_info)
+
+
+constrain_length = 3;
+poly_conv = [1 1 1; 1 0 1];
+
+% info_bits = file_read_char(info_path);
+% rx_llr = file_read_double(llr_path);
+rx_llr=llr_data;
 
 %% generate output reference (refer to the length of polynomial)
 [rows,cols] = size(poly_conv);
@@ -102,27 +116,60 @@ for i = 1:1:(len_rx_data/rows)
     branch_diff_matric(:,i) = branch_diff_matric_tmp;
 end
 
-% trace back every bit to find minimum
-
-% trace back llr_output
+% trace back(SIHO)
 current_state = 1; % 最后一位的初始状态
-input_llr = zeros(1,len_rx_data/rows); % 译码结果
-
-for i= (len_rx_data/rows):-1:1
-    pre_state = suvive_path(current_state,i);
-
-
-end
-
-% trace back
-current_state = 1; % 最后一位的初始状态
+refer_state = [];
+refer_state = [refer_state current_state];
 input = zeros(1,len_rx_data/rows); % 译码结果
 
 for i= (len_rx_data/rows):-1:1
     pre_state = suvive_path(current_state,i);
     input(i) = input_ref_cur_pre(current_state,pre_state);
+    refer_state = [refer_state pre_state];
     current_state = pre_state;
 end
 
 decode_data = input;
-biterr(decode_data',data_info);
+biterr(decode_data',data_info)
+
+
+% check delta delay for every bit to find minimum
+% llr_output(SISO)
+delta = 8;
+input_llr = zeros(1,len_rx_data/rows); % 译码结果
+
+decode_Data_len = (len_rx_data/rows);
+for t= 1:1:(len_rx_data/rows)
+    llr_temp = Inf;
+    for i=0:1:delta
+        if t+i<decode_Data_len
+            % 找到当前数据后第i个输入与i+1个状态作为初始状态
+            bit_input = 1 - input(t+i); % 翻转输入bit以找到最小竞争路径
+            cur_state = refer_state(t+i+1);
+
+            % 回溯到t时刻
+            for j=i-1:-1:0
+                pre_state = suvive_path(cur_state,t+i);
+                bit_input = input_ref_cur_pre(cur_state,pre_state);
+                cur_state = pre_state;
+            end
+            if pre_state~=input(t)
+                llr_temp = min(llr_temp,branch_diff_matric(refer_state(t+i+1),t+i+1));
+            end
+        end
+    end
+
+    input_llr(t) = (2*input(t) - 1) * llr_temp;
+end
+
+input_llr_hard = [];
+for i = input_llr
+    if i<0
+        input_llr_hard = [input_llr_hard 0];
+    else
+        input_llr_hard = [input_llr_hard 1];
+    end
+end
+
+biterr(input_llr_hard',data_info)
+

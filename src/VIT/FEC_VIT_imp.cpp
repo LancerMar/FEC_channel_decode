@@ -29,7 +29,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::encode(char* source_data_ptr, int source_d
     std::vector<char> regs(_constrain_length, 0);
 
     // step 2: input 1 bit to registers
-    std::vector<char> state = regs; 
+    std::vector<char> state = regs;
     std::vector<char> encode_data;
     for (int i = 0; i < source_data_len; i++) {
         std::vector<char> next_state;
@@ -49,7 +49,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::encode(char* source_data_ptr, int source_d
 }
 
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result& result) {
-    
+
     char* ptr_code_data_tmp = code_data_ptr;
     char* punc_sequence_ptr = nullptr;
     std::vector<char> punc_all;
@@ -62,13 +62,13 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
         _input_data_len = code_frame_no_punc_size;
         int cycle = code_frame_no_punc_size / _punc_pattern_vec.size();
 
-        
+
         for (int i = 0; i < cycle; i++) {
             punc_all.insert(punc_all.end(), _punc_pattern_vec.begin(), _punc_pattern_vec.end());
         }
 
         //expand the encoded data
-        std::vector<char> coded_data_no_punc_tmp(punc_all.size(),0);
+        std::vector<char> coded_data_no_punc_tmp(punc_all.size(), 0);
         coded_data_no_punc = coded_data_no_punc_tmp;
         int coded_data_index = 0;
         for (int i = 0; i < punc_all.size(); i++) {
@@ -80,13 +80,13 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
         ptr_code_data_tmp = coded_data_no_punc.data();
         punc_sequence_ptr = punc_all.data();
     }
-    
+
     int output_once = _poly.size();
-    int coded_data_grouping = _input_data_len /output_once;
+    int coded_data_grouping = _input_data_len / output_once;
     int state_count = std::pow(2, (_constrain_length - 1));
     int state_half = state_count / 2;
     int* HammingDist_set = new int[_output_reference.size()];
-    
+
     int* path_matric = new int[state_count];
     for (int i = 0; i < state_count; i++) {
         path_matric[i] = 0;
@@ -95,7 +95,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
     for (int i = 0; i < state_count; i++) {
         path_matric_temp[i] = 0;
     }
-    std::vector<std::vector<int>> suvive_path(state_count, std::vector<int>(coded_data_grouping,0));
+    std::vector<std::vector<int>> suvive_path(state_count, std::vector<int>(coded_data_grouping, 0));
 
     int next_out_0;
     int next_out_1;
@@ -105,11 +105,11 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
     int idx = 0;
 
     int input = 0;
-    
+
     for (int i = 0; i < coded_data_grouping; i++) {
         // calculate the Hamming dist of coded data and all refrence
         cal_Hamming_dist_set(ptr_code_data_tmp, HammingDist_set, punc_sequence_ptr);
-        
+
         for (int state = 0; state < state_count; state++) {
             int pre_path_0_state = (state << 1);
             int pre_path_1_state = (state << 1) + 1;
@@ -128,7 +128,8 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
             if (branch_matric_1 < branch_matric_0) {
                 idx = 1;
                 path_matric_temp[state] = branch_matric_1;
-            }else{
+            }
+            else {
                 idx = 0;
                 path_matric_temp[state] = branch_matric_0;
             }
@@ -141,7 +142,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
                 suvive_path[state][i] = idx + (state - state_half) * 2;
             }
         }
-        
+
         memcpy(path_matric, path_matric_temp, state_count * sizeof(int));
 
         // next output group
@@ -155,7 +156,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
 
     //trace back
     int current_state = 0; // initial state for last bit
-    decode_data_ptr = new char[coded_data_grouping]; 
+    decode_data_ptr = new char[coded_data_grouping];
     decode_data_len = coded_data_grouping;
 
     int pre_state = 0;
@@ -173,6 +174,30 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(char* code_data_ptr, int code_data_
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::decode(double* code_data_ptr, int code_data_len, char*& decode_data_ptr, int& decode_data_len, Result& result) {
     double* ptr_code_data_tmp = code_data_ptr;
     int _input_data_len = code_data_len;
+    std::vector<char> punc_all;
+    std::vector<double> coded_data_no_punc;
+
+    if (0 != _punc_pattern_vec.size()) {
+        int code_frame_no_punc_size = _poly.size() * (code_data_len * _input_count_punc_pattern) / _output_count_punc_pattern;
+        _input_data_len = code_frame_no_punc_size;
+        int cycle = code_frame_no_punc_size / _punc_pattern_vec.size();
+
+        for (int i = 0; i < cycle; i++) {
+            punc_all.insert(punc_all.end(), _punc_pattern_vec.begin(), _punc_pattern_vec.end());
+        }
+
+        //expand the encoded data
+        std::vector<double> coded_data_no_punc_tmp(punc_all.size(), 0);
+        coded_data_no_punc = coded_data_no_punc_tmp;
+        int coded_data_index = 0;
+        for (int i = 0; i < punc_all.size(); i++) {
+            if (1 == punc_all[i]) {
+                coded_data_no_punc[i] = code_data_ptr[coded_data_index];
+                coded_data_index = coded_data_index + 1;
+            }
+        }
+        ptr_code_data_tmp = coded_data_no_punc.data();
+    }
 
     int output_once = _poly.size();
     int coded_data_grouping = _input_data_len / output_once;
@@ -276,7 +301,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::set_constrain_length(int constrain_length)
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::set_puncture_pattern(char* punc_pattern_ptr, int punc_pattern_len) {
     std::vector<char> punc_pattern_vec(punc_pattern_ptr, punc_pattern_ptr + punc_pattern_len);
     _punc_pattern_vec = punc_pattern_vec;
-    
+
     int input_count_punc_pattern = punc_pattern_vec.size() / _poly.size();
     int output_count_punc_pattern = 0;
     for (int i = 0; i < punc_pattern_vec.size(); i++) {
@@ -331,7 +356,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::gen_next_out_table() {
 
     // input 0/1 , the output for every status 
     for (int i = 0; i < ref_regs_status_all.size(); i++) {
-        
+
         std::vector<char> next_state;
         std::vector<char> next_out;
         std::vector<char> next_out_table_tmp;
@@ -351,13 +376,13 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::gen_next_out_table() {
 }
 
 
-void FEC_CHANNEL_DECODE::FEC_VIT_IMP::cal_Hamming_dist_set(char* code_data_ptr, int*& HammingDist_set_ptr,char* punc_unit_ptr) {
+void FEC_CHANNEL_DECODE::FEC_VIT_IMP::cal_Hamming_dist_set(char* code_data_ptr, int*& HammingDist_set_ptr, char* punc_unit_ptr) {
     char* punc_unit_temp_ptr = punc_unit_ptr;
     for (int i = 0; i < _output_reference.size(); i++) {
         int ham_dist_i = 0;
         for (int j = 0; j < _output_reference[i].size(); j++) {
             if (nullptr == punc_unit_temp_ptr) {
-                ham_dist_i = ham_dist_i +  (code_data_ptr[j] + _output_reference[i][j]) % 2;
+                ham_dist_i = ham_dist_i + (code_data_ptr[j] + _output_reference[i][j]) % 2;
             }
             else {
                 ham_dist_i = ham_dist_i + static_cast<int>(punc_unit_temp_ptr[j] & (code_data_ptr[j] + _output_reference[i][j])) % 2;
@@ -380,7 +405,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::cal_euclidean_dist_set(double* code_data_p
 void FEC_CHANNEL_DECODE::FEC_VIT_IMP::conv_encode_step(std::vector<char> state, char input, std::vector<char>& next_state, std::vector<char>& output) {
     int output_count = _poly.size();
     std::vector<char> regs;
-    
+
     // gen registors set
     regs.push_back(input);
     for (int i = 0; i < state.size(); i++) {
@@ -390,7 +415,7 @@ void FEC_CHANNEL_DECODE::FEC_VIT_IMP::conv_encode_step(std::vector<char> state, 
     // 计算每一个多项式对应的输出
     for (int i = 0; i < output_count; i++) {
         int output_tmp = 0;
-        for(int j = 0;j< _poly[i].size(); j++) {
+        for (int j = 0; j < _poly[i].size(); j++) {
             if (0 != _poly[i][j]) {
                 output_tmp = output_tmp + regs[j];
             }
