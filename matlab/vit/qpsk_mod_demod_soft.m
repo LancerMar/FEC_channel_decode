@@ -9,6 +9,12 @@ function [llr_data,hard_data] = qpsk_mod_demod_soft(data,snr)
     
     % 加噪
     rxSig = awgn(data_qpsk_mod,snr);
+	
+	% 随机频率偏移
+    Rb=1e6;
+    maxfc=0.5e-4;
+    fc=randperm(2*maxfc*Rb,1)/Rb-maxfc;
+    rxSig = rxSig .* exp(sqrt(-1)*2*pi*fc*(0:length(rxSig)-1).');
     
     % 过信道后星座图
     % scatterplot(rxSig);
