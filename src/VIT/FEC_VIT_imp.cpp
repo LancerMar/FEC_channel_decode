@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 
+#include <cmath>
+
 #include "comm_tool.h"
 
 FEC_CHANNEL_DECODE::FEC_VIT_IMP::FEC_VIT_IMP() {

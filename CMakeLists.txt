@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-Project(FEC_channel_decode)
+project(FEC_channel_decode)
 
 set(SHARED_LIBS_SOURCES
     src/FEC_channel_decode_api.cpp

@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef _WIN32
-#define FEC_CHANNEL_DECODE_EXPORT _declspec(dllexport)
+#define FEC_CHANNEL_DECODE_EXPORT __declspec(dllexport)
 #else
 #ifdef __GUNC__
 #define FEC_CHANNEL_DECODE_EXPORT __attribute__ ((visibility("default")))

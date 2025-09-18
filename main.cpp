@@ -2,6 +2,8 @@
 #include <vector>
 #include <fstream>
 
+#include <ctime>
+
 #include "FEC_channel_decode_api.h"
 #include "comm_type.h"
 #include "joeytest.h"
