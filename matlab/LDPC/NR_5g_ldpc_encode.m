@@ -20,4 +20,5 @@ code_word(1:msg_length) = msg;
 
 
 %% double-diagonal encode
+for i = 
 
