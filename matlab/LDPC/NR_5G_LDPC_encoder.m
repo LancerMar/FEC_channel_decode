@@ -1,28 +1,15 @@
-clear all;
-clc
-
-load Base_Matrics_5G\NR_1_2_20.txt
-Base_matric = NR_1_2_20;
-expansion_factor = 20;
+function out = NR_5G_LDPC_encoder(Base_matric,expansion_factor,msg)
+%Base_matric: base matrix
+%expansion_factor: expansion factor
+%msg: information bits(length = (Base_matric(cols) - Base_matric(rows)) * expansion_factor) 
+%out: code words
 
 [rows,cols] = size(Base_matric);
-
-% number of rows*expansion_factor = length of parity 
-%number of cols*expansion_factor = length of code_word
 msg_length = (cols - rows) * expansion_factor;
-msg = randi([0 1],1,msg_length);
-
-code_word = NR_5G_LDPC_encoder(Base_matric,expansion_factor,msg);
-check_cword(Base_matric,expansion_factor,code_word)
-
-
-
-
 
 code_word = zeros(1,cols*expansion_factor);
 % assign message word in code word
 code_word(1:msg_length) = msg;
-
 
 %% double-diagonal encode (only 4 rows here) 
 % hint: this step is only for encode LDPC code in 5G NR standards 
@@ -62,7 +49,6 @@ for row_idx = [1 2 3]
     code_word((cols-rows+row_idx)*expansion_factor+1:(cols-rows+row_idx+1)*expansion_factor) = Pi;
 end
 
-
 %% Remaining parity calculation
 % Remaining parity refer to the identity matrix part of Base matrix
 % HINT: we do not have to calculate P4 in row4(already did that in row3).
@@ -77,7 +63,6 @@ for row_idx = 5:rows
     code_word((cols-rows+row_idx-1)*expansion_factor+1:(cols-rows+row_idx)*expansion_factor) = Pi;
 end
 
-code_word(1,5) = 1-code_word(1,5);
-check_cword(Base_matric,expansion_factor,code_word)
+out = code_word;
 
-
+end
