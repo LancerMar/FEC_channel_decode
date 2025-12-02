@@ -1,4 +1,4 @@
-function out = check_cword(base_matric,z,c);
+function out = check_cword(base_matric,z,c)
 %base_matric: base matrix
 %z: expansion factor
 %c: codewords(must be length of cols(base_matric)*z)
@@ -23,3 +23,5 @@ if(all(syn(:) == 0))
 else
     out = 0;
 end
+end
+
