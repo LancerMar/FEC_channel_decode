@@ -8,6 +8,10 @@ function [decode_bits,syndrome,iterate_times] = LDPC_decoder(H,LLR,max_iteration
 %       decode_bits     decoded bits(after hard decision)
 %       syndrome        check result of H*c^T
 %       iterate_times   actual iteration times
+    [rows_H,cols_H] = size(H);
+    k = cols_H - rows_H;
+    n = cols_H;
+
     L_storage = LLR.*H;
     L_sign = sign(L_storage);
     
@@ -48,7 +52,7 @@ function [decode_bits,syndrome,iterate_times] = LDPC_decoder(H,LLR,max_iteration
         LLR = LLR_extrinsic + LLR;
     
         % check if curret LLR is correct
-        check_result = check_cword_normal(H,received_word);
+        [check_result,syndrom] = check_cword_normal(H,LLR);
         if check_result == 1
             disp("check pass!");
             break;
@@ -56,7 +60,21 @@ function [decode_bits,syndrome,iterate_times] = LDPC_decoder(H,LLR,max_iteration
             disp("check fail");
         end
 
+        % column computation(SISO repetition decode)
+        for row = 1:rows_H
+            tmp_1_row = abs(sign(L_storage(row,:)));
+            tmp_LLR_cur_row = tmp_1_row .* LLR;
+            L_storage(row,:) = L_storage(row,:)+tmp_LLR_cur_row;
+        end
+        L_sign = sign(L_storage);
+
     end
+
+    syndrome = syndrom;
+    hard_word = (1-sign(LLR))/2;
+%     decode_bits = hard_word(1:k);
+    decode_bits = hard_word;
+    iterate_times = iteration;
 end
 
 

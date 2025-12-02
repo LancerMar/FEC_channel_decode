@@ -1,7 +1,7 @@
 clear all;
 clc
 
-EbNodB = 1;
+EbNodB = -2;
 msg = randi([0 1],3,1)';
 
 
@@ -39,6 +39,8 @@ sigma = sqrt(1/(2*code_rate*EbNo));
 symbols = 1-2*code_word;
 % simple AWGN channel
 received_word = symbols+sigma*randn(1,n);
+hard_bits = (1-sign(received_word))/2;
+channel_bit_err = biterr(hard_bits,code_word)
 
 % check code word
 check_result = check_cword_normal(H,received_word);
@@ -48,6 +50,12 @@ else
     disp("check fail");
 end
 
+LLR = received_word;
+max_iteration=8;
+[decode_bits,~,iterate_times] = LDPC_decoder(H,LLR,max_iteration);
+
+err_bits = biterr(decode_bits,code_word)
+disp("iteration time: "+iterate_times);
 
 % init
 LLR = received_word;
