@@ -3,11 +3,11 @@ We build this project for everyone can simply understand and use FEC decoder to 
 1. viterbi decoder 
 
 
-| FEC decode algorithm | FEC encode type |detail |
-|:-----------|:------------|:-----------|
-| Viterbi | convolution code | [vit_decode_analyse.md](DOC/vit_decode_analyse.md) |
-| MIN_SUM | LDPC | []() |
-| MAX_Log_MAP | Turbo | []() |
+| FEC decode algorithm | FEC encode type | performance |detail |
+|:-----------|:------------|:-----------|:-----------|
+| Viterbi | convolution code | | [vit_decode](DOC/vit_decode_analyse.md)  |
+| MIN_SUM | LDPC | [min_sum_decoder](DOC/LDPC/min_sum_deocder_performance_analyse.md) |[]()|
+| MAX_Log_MAP | Turbo | []() |[]()|
 
 # Compile
     This project supports multi platform compilation,include  

@@ -54,10 +54,10 @@ function [decode_bits,syndrome,iterate_times] = LDPC_decoder(H,LLR,max_iteration
         % check if curret LLR is correct
         [check_result,syndrom] = check_cword_normal(H,LLR);
         if check_result == 1
-            disp("check pass!");
+            %disp("check pass!");
             break;
         else
-            disp("check fail");
+            %disp("check fail");
         end
 
         % column computation(SISO repetition decode)
