@@ -57,7 +57,7 @@ while iteration <max_iteration
     % each block layer is a layer
     % count of layer = rows of Base Matrix
     for layer = 1:rows_B
-        temp_regs_idx = 0;
+        temp_regs_idx = 0; % number of no -1 in each layer
         for col_idx = 1:cols_B
             if Base_matric(layer,col_idx)~=-1
                 temp_regs_idx = temp_regs_idx+1;
@@ -67,25 +67,37 @@ while iteration <max_iteration
                 % store in temp regs
                 temp_regs(temp_regs_idx,:) = mul_sh(LLR((col_idx-1)*z+1:col_idx*z),Base_matric(layer,col_idx));
             end
+        end
+        % min-sum on temp regs in each layer
+        % process temp_regs(1:,col_temp_reg_idx)
+        for col_temp_reg_idx = 1:z 
+            [min1,pos] = min(abs(temp_regs(1:temp_regs_idx,col_temp_reg_idx)));
+            min2 = min(abs(temp_regs([1:pos-1 pos+1:temp_regs_idx],col_temp_reg_idx)));
+            sign_reg_i = sign(temp_regs(1:temp_regs_idx,col_temp_reg_idx));
+            parity = prod(sign_reg_
+            temp_regs(1:temp_regs_idx,col_temp_reg_idx) = min1; % abs value
+            temp_regs(pos,col_temp_reg_idx) = min2; % abs va
+            temp_regs(1:temp_regs_idx,col_temp_reg_idx) = parity*sign_reg_i.*temp_regs(1:temp_regs_idx,col_temp_reg_idx);% sign them
+        end
 
-            % min-sum on temp regs in each layer
-            % process temp_regs(1:,col_temp_reg_idx)
-            for col_temp_reg_idx = 1:z 
-                [min1,pos] = min(abs(temp_regs(1:temp_regs_idx,col_temp_reg_idx)));
-                min2 = min(abs(temp_regs([1:pos-1 pos+1:temp_regs_idx],col_temp_reg_idx)));
-                sign_reg_i = sign(temp_regs(1:temp_regs_idx,col_temp_reg_idx));
-                parity = prod(sign_reg_i);
-
-                temp_regs(1:temp_regs_idx,col_temp_reg_idx) = min1; % abs value
-                temp_regs(pos,col_temp_reg_idx) = min2; % abs value
-
-                temp_regs(1:temp_regs_idx,col_temp_reg_idx) = parity*sign_reg_i.*temp_regs(1:temp_regs_idx,col_temp_reg_idx);% sign them
+        % reset the pointer back
+        row_idx = row_idx - temp_regs_idx;
+        temp_regs_idx = 0;
+        for col_idx = 1:cols_B
+            if Base_matric()
+                temp_regs_idx = temp_regs_idx+1;
+                row_idx = row_idx + 1;
+                % reverse the temp regs in R(linear storage)
+                R(row_idx,:) = mul_sh(temp_regs(temp_regs_idx,:),z - Base_matric(layer,col_idx));
+                % sum R : update the LLR
+                LLR((col_idx-1)*z+1:col_idx*z) = LLR((col_idx-1)*z+1:col_idx*z) + R(row_idx,:);
             end
-
         end
     end
+    % hard decision
+    msg_recv = LLR(1:k)<0;
     iteration = iteration+1;
-
+    
 end
 
 
