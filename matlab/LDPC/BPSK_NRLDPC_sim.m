@@ -10,10 +10,8 @@ Base_matric = NR_1_0_16;
 z = 16; % expansion factor
 
 %number of none -1 block in base matrix
-none_minu1_B_len = sum(B(:)~=-1);
-% storage of none -1 block matrix
-% it is a linear storage, store every none -1 matrix
-R = zeros(none_minu1_B_len,z);
+none_minu1_B_len = sum(Base_matric(:)~=-1);
+
 % Row processing
 % 1. L-R(L: total belief of received bits)
 % 2. min-sum every row
@@ -52,8 +50,13 @@ received_word = symbols+sigma*randn(1,n);
 % SISO iteration message-passing layered decode
 LLR = received_word;
 iteration = 0; % times of iteration
-row_idx = 0;
+
+% storage of none -1 block matrix
+% it is a linear storage, store every none -1 matrix
+R = zeros(none_minu1_B_len,z);
+
 while iteration <max_iteration
+    row_idx = 0;
     % each block layer is a layer
     % count of layer = rows of Base Matrix
     for layer = 1:rows_B
@@ -74,7 +77,7 @@ while iteration <max_iteration
             [min1,pos] = min(abs(temp_regs(1:temp_regs_idx,col_temp_reg_idx)));
             min2 = min(abs(temp_regs([1:pos-1 pos+1:temp_regs_idx],col_temp_reg_idx)));
             sign_reg_i = sign(temp_regs(1:temp_regs_idx,col_temp_reg_idx));
-            parity = prod(sign_reg_
+            parity = prod(sign_reg_i);
             temp_regs(1:temp_regs_idx,col_temp_reg_idx) = min1; % abs value
             temp_regs(pos,col_temp_reg_idx) = min2; % abs va
             temp_regs(1:temp_regs_idx,col_temp_reg_idx) = parity*sign_reg_i.*temp_regs(1:temp_regs_idx,col_temp_reg_idx);% sign them
@@ -84,7 +87,7 @@ while iteration <max_iteration
         row_idx = row_idx - temp_regs_idx;
         temp_regs_idx = 0;
         for col_idx = 1:cols_B
-            if Base_matric()
+            if Base_matric(layer,col_idx)~=-1
                 temp_regs_idx = temp_regs_idx+1;
                 row_idx = row_idx + 1;
                 % reverse the temp regs in R(linear storage)
@@ -95,7 +98,15 @@ while iteration <max_iteration
         end
     end
     % hard decision
-    msg_recv = LLR(1:k)<0;
+    LLR_hard = LLR<0;
+    if all(LLR_hard(:) == 0)
+        disp("check pass");
+        iteration
+        break;
+    else
+        disp("check fail");
+    end
+    msg_recv = LLR_hard(1:k);
     iteration = iteration+1;
     
 end
